@@ -30,6 +30,8 @@ ncurses: https://code.google.com/p/goncurses/
 
 shell: http://golang.org/pkg/os/exec/#example_Cmd_Start
 
+testnet faucet: https://nmctest.net/
+
 # commands:
 
 curl -v --socks5-hostname 127.0.0.1:9050 acxjf2dhepeps7ts.onion:9191

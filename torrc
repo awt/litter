@@ -3,5 +3,5 @@ DataDirectory ./.tor
 HiddenServiceDir ./hidden_service
 #                 external       local service port
 HiddenServicePort 9191 127.0.0.1:7777
-Log debug
+#Log debug
 AutomapHostsOnResolve 1
