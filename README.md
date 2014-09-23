@@ -1,7 +1,7 @@
-gpgchat
+litter
 =======
 
-Pseudonymous, private chat based on Tor and Namecoin
+Pseudonymous, secure broadcasting based on Tor and Namecoin
 
 
 # Notes
