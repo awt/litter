@@ -12,6 +12,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"sync"
 	//"os/exec"
 	//"code.google.com/p/go.crypto/openpgp"
 )
@@ -22,12 +23,35 @@ type Message struct {
 	From string
 }
 
+type ApiHandler struct {
+
+}
+
+type ExternalApiHandler struct {
+
+}
+
 func main() {
 
-	// Start tor hidden service
-	
+	startTor()
+	onionHostname, _ := readOnionHostname()
+	log.Print(onionHostname);
+
+	// Register and update namecoin address
+
+	startHttpServers()
+
+	// Wait forever while the http servers run
+
+	var wg sync.WaitGroup
+	wg.Add(1);
+	wg.Wait();
+}
+
+// Start tor hidden service
+
+func startTor() {
 	torCmd := exec.Command("bin/tor", "-f", "./torrc")
-	
 	torCmd.Stdout = os.Stdout
     torCmd.Stderr = os.Stderr
 
@@ -46,22 +70,54 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
 
-	onionHostname, _ := readOnionHostname()
-	log.Print(onionHostname);
+func startHttpServers() {
 
-	// Register and update namecoin address
+	// Start external http server
 
-	// Start http server
+	externalApiHandler := new(ExternalApiHandler)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	externalApiServer := &http.Server {
+		Addr:           ":7777",
+		Handler:        externalApiHandler,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	go externalApiServer.ListenAndServe()
+
+	// Start local API server
+
+	apiHandler := new(ApiHandler)
+
+	localApiServer := &http.Server {
+		Addr:           ":8080",
+		Handler:        apiHandler,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	go localApiServer.ListenAndServe()
+
+}
+
+func (h *ExternalApiHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		var msg Message
-		body := make([]byte, r.ContentLength)
-		r.Body.Read(body)
+		body := make([]byte, req.ContentLength)
+		req.Body.Read(body)
 		json.Unmarshal(body, &msg)
 		fmt.Fprintf(w, "%s", msg.Signature)
-	})
-	log.Fatal(http.ListenAndServe(":7777", nil))
+}
+
+func (h *ApiHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(w, "%s", "foo")
+
+	// publish leet
+	// follow litter name
+	// get leets of followed names
 }
 
 
