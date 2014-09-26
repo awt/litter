@@ -12,6 +12,8 @@ import (
 	"sync"
 	"github.com/awt/litter/public"
 	"github.com/awt/litter/private"
+	"github.com/awt/litter/store"
+	"github.com/awt/litter/config"
 	//"code.google.com/p/go.crypto/openpgp"
 )
 
@@ -20,6 +22,10 @@ var Config struct {
 
 func main() {
 
+	var conf  = &config.Config{}
+	conf.SetEnvironment("local")
+	conf.Set("dbpath", "./litter.db")
+	store.Config = conf
 
 	startTor()
 	onionHostname, _ := readOnionHostname()

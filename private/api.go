@@ -4,7 +4,9 @@ import (
 	"net/http"
 	"fmt"
 	"github.com/awt/litter/store"
+	//"github.com/awt/litter/config"
 )
+
 
 type ApiHandler struct {
 }
@@ -21,7 +23,7 @@ func route(path string, method string) (body string, code int){
 
 	if path == "/" && method == "POST" {
 		// publish leet
-		store.Exec()
+		store.Leet("first leet")
 		body = ""
 		code = 200
 	} else if path == "/follow" && method == "PUT" {

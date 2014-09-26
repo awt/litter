@@ -27,3 +27,5 @@ hidden_service
 .tor
 
 namecoin
+
+*.db
