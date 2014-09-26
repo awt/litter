@@ -1,3 +1,4 @@
+/*
 package main
  
 import (
@@ -60,3 +61,4 @@ func main() {
 	//}
 	//log.Printf("sendMany completed! tx sha is: %s", txSha.String())
 }
+*/

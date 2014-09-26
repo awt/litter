@@ -35,6 +35,11 @@ testnet faucet: https://nmctest.net/
 RESTful go:
 
 http://www.gorillatoolkit.org/pkg/mux
+https://github.com/emicklei/go-restful
+
+Persistence:
+
+https://github.com/mattn/go-sqlite3
 
 # commands:
 
@@ -43,5 +48,4 @@ curl --socks5-hostname 127.0.0.1:9050 acxjf2dhepeps7ts.onion:9191 -H "Accept: ap
 
 bin/tor --SOCKSPort 9070 --DataDirectory ./.tor --HiddenServiceDir ./hidden_service --HiddenServicePort 7777
 
-bin/namecoind -dbcache=400 -printtoconsole -walletpath=./test-wallet.dat
-
+bin/namecoind -testnet -datadir=namecoin/ -dbcache=400 -printtoconsole -walletpath=./testnet-wallet.dat

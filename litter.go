@@ -1,10 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"net/http"
-	//"html"
-	"fmt"
 	"log"
 	"os/exec"
 	"os/signal"
@@ -13,25 +10,16 @@ import (
 	"strings"
 	"time"
 	"sync"
-	//"os/exec"
+	"github.com/awt/litter/public"
+	"github.com/awt/litter/private"
 	//"code.google.com/p/go.crypto/openpgp"
 )
 
-type Message struct {
-	Body string
-	Signature string
-	From string
-}
-
-type ApiHandler struct {
-
-}
-
-type ExternalApiHandler struct {
-
+var Config struct {
 }
 
 func main() {
+
 
 	startTor()
 	onionHostname, _ := readOnionHostname()
@@ -48,6 +36,10 @@ func main() {
 	wg.Wait();
 }
 
+func initializeDatabase() {
+
+}
+
 // Start tor hidden service
 
 func startTor() {
@@ -59,7 +51,7 @@ func startTor() {
 	signal.Notify(c, os.Interrupt)
 	go func(){
 		for sig := range c {
-			log.Printf("got %v, killing tor", sig)
+			log.Printf("Got %v, shutting down.", sig)
 			torCmd.Process.Kill()
 			os.Exit(1)
 		}
@@ -76,50 +68,27 @@ func startHttpServers() {
 
 	// Start external http server
 
-	externalApiHandler := new(ExternalApiHandler)
+	externalApiHandler := new(public.ApiHandler)
 
 	externalApiServer := &http.Server {
 		Addr:           ":7777",
 		Handler:        externalApiHandler,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
 	}
 
 	go externalApiServer.ListenAndServe()
 
 	// Start local API server
 
-	apiHandler := new(ApiHandler)
+	apiHandler := new(private.ApiHandler)
 
 	localApiServer := &http.Server {
 		Addr:           ":8080",
 		Handler:        apiHandler,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
 	}
 
 	go localApiServer.ListenAndServe()
 
 }
-
-func (h *ExternalApiHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-		var msg Message
-		body := make([]byte, req.ContentLength)
-		req.Body.Read(body)
-		json.Unmarshal(body, &msg)
-		fmt.Fprintf(w, "%s", msg.Signature)
-}
-
-func (h *ApiHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "%s", "foo")
-
-	// publish leet
-	// follow litter name
-	// get leets of followed names
-}
-
 
 func readOnionHostname() (string, error){
 	// Waiting for the hostname file to be
