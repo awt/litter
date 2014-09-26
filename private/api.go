@@ -21,21 +21,31 @@ func (h *ApiHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// process the json in the request body
 
-	var msg Message
-	requestBody := make([]byte, req.ContentLength)
-	req.Body.Read(requestBody)
-	json.Unmarshal(requestBody, &msg)
 
-	// Build the response and send it
-	responseBody, code := route(path, method, msg)
+	var responseBody string
+	code := 200
+
+	if method == "POST" {
+		var msg Message
+		requestBody := make([]byte, req.ContentLength)
+		req.Body.Read(requestBody)
+		json.Unmarshal(requestBody, &msg)
+
+		// Build the response and send it
+		responseBody, code = route(path, method, msg)
+	} else {
+		responseBody, code = route(path, method)
+	}
 	w.WriteHeader(code);
 	fmt.Fprintf(w, responseBody)
 }
 
-func route(path string, method string, msg Message) (body string, code int){
+func route(path string, method string, args ...interface{}) (body string, code int){
 
 	if path == "/" && method == "POST" {
 		// publish leet
+		var msg Message
+		msg = args[0].(Message)
 		store.Leet(msg.Body)
 		body = ""
 		code = 200
