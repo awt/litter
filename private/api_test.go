@@ -13,8 +13,10 @@ func Test(t *testing.T) {
 	store.Config = conf
 	store.Reset()
 	// test leet posting
+	var msg Message
+	msg.Body = "first leet"
 
-	body, code := route("/", "POST")
+	body, code := route("/", "POST", msg)
 	if code != 200 {
 		t.Error("Unexpected response code.");
 	}

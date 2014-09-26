@@ -11,21 +11,12 @@ import (
 var Config *config.Config
 
 func Leet(body string) {
-	exec("insert into leets VALUES (null, ?)", body)
-}
-
-func exec(statement string, args ...interface{}) {
-	log.Print(args);
-	db, err := sql.Open("sqlite3", Config.Get("dbpath"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	createTables(db)
-	_, err = db.Exec(statement, args...)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+	withDB(func(db *sql.DB, args ...interface{}) {
+		_, err := db.Exec("insert into leets VALUES (null, ?)", body)
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
 }
 
 func createTables(db *sql.DB) {
@@ -57,20 +48,22 @@ func createTables(db *sql.DB) {
 	}
 }
 
-//func withDB() {
-	//db, err := sql.Open("sqlite3", Config.Get("dbpath"))
-	//if err != nil {
-		//log.Fatal(err)
-	//}
-	//createTables(db)
-
-	//_, err = db.Exec(statement, args...)
-	//if err != nil {
-		//log.Fatal(err)
-	//}
-	//defer db.Close()
-//}
+func withDB(f func(db *sql.DB, args ...interface{}), args ...interface{}) {
+	db, err := sql.Open("sqlite3", Config.Get("dbpath"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	createTables(db)
+	f(db, args...)
+	defer db.Close()
+}
 
 func Reset() {
-
+	log.Print("Resetting database..");
+	withDB(func(db *sql.DB, args ...interface{}) {
+		_, err := db.Exec("drop table leets");
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
 }
