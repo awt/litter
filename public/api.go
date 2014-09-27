@@ -16,6 +16,10 @@ type ApiHandler struct {
 }
 
 
+// Check friends' leets periodically and store them
+// in our leet table
+
+
 func (h *ApiHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// receive notification of new leet
 		// receive direct message

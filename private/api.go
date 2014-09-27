@@ -25,7 +25,7 @@ func (h *ApiHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	var responseBody string
 	code := 200
 
-	if method == "POST" {
+	if req.Header.Get("Accept") == "application/json" {
 		var msg Message
 		requestBody := make([]byte, req.ContentLength)
 		req.Body.Read(requestBody)

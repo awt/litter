@@ -17,6 +17,10 @@ func Test(t *testing.T) {
 	msg.Body = "first leet"
 
 	body, code := route("/", "POST", msg)
+	leets, _ := store.Leets()
+	if len(leets) != 1 {
+		t.Error("Expected there to be 1 leet in the database.");
+	}
 	if code != 200 {
 		t.Error("Unexpected response code.");
 	}
