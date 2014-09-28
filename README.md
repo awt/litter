@@ -45,6 +45,18 @@ Go app structure:
 
 https://medium.com/@benbjohnson/structuring-applications-in-go-3b04be4ff091
 
+Go upnp:
+
+https://github.com/huin/goupnp
+
+ZeroMQ:
+
+https://github.com/pebbe/zmq4
+
+Linking go statically:
+
+http://blog.hashbangbash.com/2014/04/linking-golang-statically/
+
 # commands:
 
 curl -v --socks5-hostname 127.0.0.1:9050 acxjf2dhepeps7ts.onion:9191

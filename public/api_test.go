@@ -13,11 +13,9 @@ func TestExport(t *testing.T) {
 	store.Config = conf
 	store.Reset()
 
-	// start public server configured on test ports
-
 	// load leet fixtures
 
-	// request leets from public server
+	// request leets via route 
 
 	// verify leet count/content
 

@@ -2,14 +2,41 @@ package store
 
 import (
 	"database/sql"
-	//"database/sql/driver"
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
+	"io/ioutil"
 	"github.com/awt/litter/config"
+	"os"
 )
 
 var Config *config.Config
 type sqlFunc func(db *sql.DB, args ...interface{})
+
+func Follow(name string) {
+	withDB(func(db *sql.DB, args ...interface{}) {
+		_, err := db.Exec("insert into friends VALUES (null, ?)", name)
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
+}
+
+func Friends() (friends []interface{}, err error) {
+	withDB(func(db *sql.DB, args ...interface{}) {
+		rows, err := db.Query("select name from friends")
+		if err != nil {
+			log.Fatal(err)
+		}
+		for rows.Next() {
+			var name string
+			rows.Scan(&name)
+			friends = append(friends, name)
+		}
+		rows.Close()
+	})
+	return friends, err
+}
 
 func Leet(body string) {
 	withDB(func(db *sql.DB, args ...interface{}) {
@@ -38,27 +65,26 @@ func Leets() (leets []interface{}, err error) {
 }
 
 func createTables(db *sql.DB) {
-	query := `SELECT name FROM sqlite_master WHERE type='table' AND 
-	name='leets';`
+	createTable(db, "leets", `body TEXT NOT NULL`)
+	createTable(db, "friends", `name TEXT NOT NULL`)
+}
+
+func createTable(db *sql.DB, name string, fields string) {
+	query := fmt.Sprintf(`SELECT name FROM sqlite_master WHERE type='table' AND name='%s';`, name)
 	rows, err := db.Query(query)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
-	var name string
+	var nameField string
 	for rows.Next() {
-		rows.Scan(&name)
+		rows.Scan(&nameField)
 	}
-	defer rows.Close()
 	
 	// Create tables if they don't exist;
-	if "" == name {
-		log.Print("Initializing database...");
-		statement := `CREATE TABLE leets (
-			id INTEGER PRIMARY KEY,
-			body TEXT NOT NULL
-		)`
-
+	if "" == nameField {
+		log.Printf("Creating %s table", name);
+		statement := fmt.Sprintf("CREATE TABLE %s (id INTEGER PRIMARY KEY, %s)", name, fields)
 		_, err := db.Exec(statement);
 		if err != nil {
 			log.Fatal(err)
@@ -79,6 +105,20 @@ func withDB(f sqlFunc, args ...interface{}) {
 func Reset() {
 	log.Print("Resetting database..");
 	withDB(func(db *sql.DB, args ...interface{}) {
-		db.Exec("drop table leets");
+		db.Exec("drop table IF EXISTS leets");
+		db.Exec("drop table IF EXISTS friends");
 	})
+}
+
+func LoadFixture(path string) []byte {
+
+	// Read fixture file
+
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Print("Couldn't find json fixture Exiting.");
+		os.Exit(1)
+	}
+
+	return content
 }

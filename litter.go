@@ -14,6 +14,7 @@ import (
 	"github.com/awt/litter/private"
 	"github.com/awt/litter/store"
 	"github.com/awt/litter/config"
+	"github.com/awt/litter/nmc"
 	//"code.google.com/p/go.crypto/openpgp"
 )
 
@@ -34,6 +35,12 @@ func main() {
 	// Register and update namecoin address
 
 	startHttpServers()
+
+		
+	nmc.FetchLeets()
+			
+
+	// Set up persistent connections with all friends
 
 	// Wait forever while the http servers run
 
