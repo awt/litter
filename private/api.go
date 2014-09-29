@@ -46,7 +46,7 @@ func route(path string, method string, args ...interface{}) (body string, code i
 		// publish leet
 		var msg Message
 		msg = args[0].(Message)
-		store.Leet(msg.Body)
+		store.CreateLeet(msg.Body)
 		body = ""
 		code = 200
 	} else if path == "/follow" && method == "PUT" {

@@ -11,6 +11,16 @@ import (
 	"os"
 )
 
+type Leet struct {
+	Body string
+	Signature string
+	From string
+}
+
+type LeetList struct {
+	Collection []Leet
+}
+
 var Config *config.Config
 type sqlFunc func(db *sql.DB, args ...interface{})
 
@@ -39,7 +49,11 @@ func Friends() (friends []interface{}, err error) {
 	return friends, err
 }
 
-func Leet(body string) {
+func ImportLeet(leet map[string]interface{}) {
+	CreateLeet(leet["body"].(string))
+}
+
+func CreateLeet(body string) {
 	withDB(func(db *sql.DB, args ...interface{}) {
 		_, err := db.Exec("insert into leets VALUES (null, ?)", body)
 		if err != nil {

@@ -53,7 +53,7 @@ func route(path string, method string, args ...interface{}) (body string, code i
 		var msg Message
 		var requestBody = args[0].([]byte)
 		json.Unmarshal(requestBody, &msg)
-		store.Leet(msg.Body)
+		store.CreateLeet(msg.Body)
 		body = ""
 		code = 200
 	} else if path == "/leets" && method == "GET" {

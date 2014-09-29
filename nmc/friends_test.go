@@ -16,4 +16,9 @@ func Test(t *testing.T) {
 	store.Follow("satoshi")
 	FetchLeets()
 
+	leets, _ := store.Leets()
+	if len(leets) != 3 {
+		t.Error("Expected there to be 3 leets in the database.");
+	}
+
 }

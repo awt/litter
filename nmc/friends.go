@@ -18,14 +18,20 @@ func FetchLeets() {
 
 	friends, _ := store.Friends()
 	for _,friend := range friends {
-		fmt.Printf("Fetching from %s", friend)
+		fmt.Printf("Fetching from %s\n", friend)
 
 		// Fetch namecoin json
 		host := LookupHost(friend.(string))
 
 		// Fetch leets from host in namecoin json
 
-		fetch(host)
+		var list interface{}
+		responseBody := fetch(host)
+		json.Unmarshal(responseBody, &list)
+		m := list.([]interface{})
+		for _, leet := range m {
+			store.ImportLeet(leet.(map[string]interface{}))
+		}
 	}
 
 }
