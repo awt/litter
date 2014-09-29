@@ -7,6 +7,7 @@ import (
 	"log"
 	"io/ioutil"
 	"github.com/awt/litter/config"
+	"path/filepath"
 	"os"
 )
 
@@ -114,9 +115,10 @@ func LoadFixture(path string) []byte {
 
 	// Read fixture file
 
-	content, err := ioutil.ReadFile(path)
+	fullPath := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "awt", "litter", path)
+	content, err := ioutil.ReadFile(fullPath)
 	if err != nil {
-		log.Print("Couldn't find json fixture Exiting.");
+		log.Printf("Couldn't find json fixture at path: %s. Exiting.", fullPath);
 		os.Exit(1)
 	}
 
