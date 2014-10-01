@@ -3,8 +3,21 @@ litter
 
 Pseudonymous, secure broadcasting based on Tor and Namecoin
 
-
+# TODO
+	* implement name registration flow
+		- litter register <name>
+			- check if name is taken
+			- store name in sqlite
+			- name_new - store code in sqlite with name
+			- namecoind calls litter on new blocks
+			- after 12 blocks send name_firstupdate: bin/namecoind name_firstupdate id/augustus d2eb8a142ed154d500 $(cat test/fixtures/record.json)
+			- namecoind calls litter on next block - mark name as registered if it's in the blockchain
+		- litter status - name registration status
+			
 # Notes
+
+Github releases: https://github.com/blog/1547-release-your-software
+
 Namecoin: https://github.com/namecoin/namecoin
 
 build for osx: https://wiki.namecoin.info/index.php?title=Build_Namecoin_From_Source
@@ -57,6 +70,17 @@ Linking go statically:
 
 http://blog.hashbangbash.com/2014/04/linking-golang-statically/
 
+JSON Unmarshalling:
+
+http://blog.golang.org/json-and-go
+
+GPG signing commits:
+
+http://stackoverflow.com/questions/10077996/sign-git-commits-with-gpg
+
+Command line lib:
+https://github.com/codegangsta/cli
+
 # commands:
 
 curl -v --socks5-hostname 127.0.0.1:9050 acxjf2dhepeps7ts.onion:9191
@@ -67,3 +91,5 @@ bin/tor --SOCKSPort 9070 --DataDirectory ./.tor --HiddenServiceDir ./hidden_serv
 bin/namecoind -testnet -datadir=namecoin/ -dbcache=400 -printtoconsole -walletpath=./testnet-wallet.dat
 
 go test -v ./...
+
+name_firstupdate id/augustus d2eb8a142ed154d500 $(cat test/fixtures/record.json)

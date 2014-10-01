@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 	"sync"
+	"github.com/codegangsta/cli"
 	"github.com/awt/litter/public"
 	"github.com/awt/litter/private"
 	"github.com/awt/litter/store"
@@ -28,25 +29,51 @@ func main() {
 	conf.Set("dbpath", "./litter.db")
 	store.Config = conf
 
-	startTor()
-	onionHostname, _ := readOnionHostname()
-	log.Print(onionHostname);
+	app := cli.NewApp()
+	app.Name = "litter"
+	app.Usage = "Spreading litter across the dark web"
 
-	// Register and update namecoin address
+	app.Commands = []cli.Command{
+		{
+			Name:      "daemon",
+			ShortName: "d",
+			Usage:     "start the daemon process",
+			Action: func(c *cli.Context) {
+				startTor()
+				onionHostname, _ := readOnionHostname()
+				log.Print(onionHostname);
 
-	startHttpServers()
+				// Register and update namecoin address
 
-		
-	nmc.FetchLeets()
-			
+				startHttpServers()
+					
+				nmc.FetchLeets()
+						
 
-	// Set up persistent connections with all friends
+				// Set up persistent connections with all friends
 
-	// Wait forever while the http servers run
+				// Wait forever while the http servers run
 
-	var wg sync.WaitGroup
-	wg.Add(1);
-	wg.Wait();
+				var wg sync.WaitGroup
+				wg.Add(1);
+				wg.Wait();
+			},
+		},
+		{
+			Name:      "register",
+			ShortName: "d",
+			Usage:     "register <name>",
+			Action: func(c *cli.Context) {
+				// check if name is taken
+				// store name in sqlite
+				// name_new - store code in sqlite with name
+				name := c.Args().First()
+				log.Println(name)
+			},
+		},
+	}
+	app.Run(os.Args)
+
 }
 
 func initializeDatabase() {
