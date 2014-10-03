@@ -26,6 +26,10 @@ API Calls:
 https://dot-bit.org/Client_API_calls_list
 https://en.bitcoin.it/wiki/Original_Bitcoin_client/API_Calls_list
 
+Config File (for callbacks):
+
+https://en.bitcoin.it/wiki/Running_Bitcoin
+
 Examples of custom commands:
 https://github.com/conformal/btcws/blob/85cc323e34e694615c4364ebe97010d7c3197952/cmds.go
 

@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"log"
+	"fmt"
 	"os/exec"
 	"os/signal"
 	"io/ioutil"
@@ -28,6 +29,7 @@ func main() {
 	conf.SetEnvironment("local")
 	conf.Set("dbpath", "./litter.db")
 	store.Config = conf
+	nmc.Config = conf
 
 	app := cli.NewApp()
 	app.Name = "litter"
@@ -64,11 +66,16 @@ func main() {
 			ShortName: "d",
 			Usage:     "register <name>",
 			Action: func(c *cli.Context) {
-				// check if name is taken
-				// store name in sqlite
-				// name_new - store code in sqlite with name
 				name := c.Args().First()
-				log.Println(name)
+
+				// check if name is taken
+				if !nmc.IsRegistered(name) {
+					log.Println(name)
+
+					nmc.ReserveName(name)
+				} else {
+					fmt.Printf("%s is already registered in the Namecoin network.\n", name)	
+				}
 			},
 		},
 	}
