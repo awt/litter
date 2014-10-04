@@ -37,6 +37,15 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
+			Name:      "blocknotify",
+			ShortName: "b",
+			Usage:     "notify litter of new block",
+			Action: func(c *cli.Context) {
+				blockCount := c.Args().First()
+				nmc.Blocknotify(blockCount)
+			},
+		},
+		{
 			Name:      "daemon",
 			ShortName: "d",
 			Usage:     "start the daemon process",

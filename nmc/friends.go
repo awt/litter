@@ -8,12 +8,46 @@ import (
 	"strconv"
 	"strings"
 	"os/exec"
+	"log"
 )
 
 var Config *config.Config
 
 type NamecoinIdentity struct {
 	Litter string
+}
+
+func Blocknotify(blockCountString string) {
+
+	var err error
+	var blockCount int64
+	var names []store.Name
+	blockCount, err = strconv.ParseInt(strings.TrimSpace(blockCountString), 10, 64)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	names, err = store.PendingNames()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// for each pending name, 
+
+	for _, name := range names {
+		// check if blockcount is + 12
+
+		if name.BlockCount + 12 >= blockCount {
+			fmt.Printf("%s mature\n", name.Name)	
+		} else {
+			fmt.Printf("%s not ready yet\n", name.Name)	
+		}
+	}
+
+			// send name_firstupdate if true
+
 }
 
 func FetchLeets() {
@@ -71,27 +105,27 @@ func LookupHost(name string) (string) {
 // name_new - store code in sqlite with name
 func ReserveName(name string) {
 	var result []interface{}
-	//var blockCount int
+	var blockCount int64
 	if Config.Name == "test" {
 		fixturePath := fmt.Sprintf("test/fixtures/name_new/%s.json", name)
 		resultText := store.LoadFixture(fixturePath)	
 		json.Unmarshal(resultText, result)
-		//blockCount = 63443
+		blockCount = 63443
 	} else {
-		result := namecoind("name_new", fmt.Sprintf("id/%s", name))	
-		fmt.Sprintf("result: %s", result);
+		result = namecoind("name_new", fmt.Sprintf("id/%s", name))	
 		bcResult := namecoind("getblockcount")[0].(string)
-		fmt.Println(bcResult)
-		blockCount, err := strconv.ParseInt(strings.TrimSpace(bcResult), 10, 64)
+		var err error
+		blockCount, err = strconv.ParseInt(strings.TrimSpace(bcResult), 10, 64)
 		if(nil != err) {
 			fmt.Println(err.Error())	
 		}
-		fmt.Printf("blockcount: %d\n", blockCount)
 	}
 
 	// store name, short hash, current block height in db in pending state
+	fmt.Println(result)
+	shortHash := result[1].(string)
+	store.AddPendingName(name, shortHash, blockCount)
 
-	//shortHash := result[1]
 }
 
 func fetch(u string) (body []byte) {
@@ -106,7 +140,6 @@ func fetch(u string) (body []byte) {
 }
 
 func namecoind(args ...string) (result []interface{}) {
-	fmt.Println(args)
 	out, _ := exec.Command("bin/namecoind", args...).Output()
 	if args[0] == "getblockcount" {
 		str := string(out)

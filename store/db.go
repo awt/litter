@@ -21,8 +21,33 @@ type LeetList struct {
 	Collection []Leet
 }
 
+type Name struct {
+	Name string
+	ShortHash string
+	BlockCount int64
+}
+
 var Config *config.Config
 type sqlFunc func(db *sql.DB, args ...interface{})
+
+func AddPendingName(name string, shortHash string, blockCount int64) {
+	// Insert new name into the db
+	withDB(func(db *sql.DB, args ...interface{}) {
+		_, err := db.Exec("insert into names VALUES (null, ?, ?, ?, 'pending')", name, shortHash, blockCount)
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
+}
+
+func CreateLeet(body string) {
+	withDB(func(db *sql.DB, args ...interface{}) {
+		_, err := db.Exec("insert into leets VALUES (null, ?)", body)
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
+}
 
 func Follow(name string) {
 	withDB(func(db *sql.DB, args ...interface{}) {
@@ -53,17 +78,9 @@ func ImportLeet(leet map[string]interface{}) {
 	CreateLeet(leet["body"].(string))
 }
 
-func CreateLeet(body string) {
-	withDB(func(db *sql.DB, args ...interface{}) {
-		_, err := db.Exec("insert into leets VALUES (null, ?)", body)
-		if err != nil {
-			log.Fatal(err)
-		}
-	})
-}
-
 func Leets() (leets []interface{}, err error) {
 	// return leets with uids later than cut off datetime
+
 	withDB(func(db *sql.DB, args ...interface{}) {
 		rows, err := db.Query("select body from leets")
 		if err != nil {
@@ -79,9 +96,27 @@ func Leets() (leets []interface{}, err error) {
 	return leets, err
 }
 
+func PendingNames() (names []Name, err error) {
+
+	withDB(func(db *sql.DB, args ...interface{}) {
+		rows, err := db.Query("select name, short_hash, block_count from names where state='pending'")
+		if err != nil {
+			log.Fatal(err)
+		}
+		for rows.Next() {
+			var name Name
+			rows.Scan(&name.Name, &name.ShortHash, &name.BlockCount)
+			names = append(names, name)
+		}
+		rows.Close()
+	})
+	return names, err
+}
+
 func createTables(db *sql.DB) {
 	createTable(db, "leets", `body TEXT NOT NULL`)
 	createTable(db, "friends", `name TEXT NOT NULL`)
+	createTable(db, "names", `name TEXT NOT NULL UNIQUE, short_hash TEXT NOT NULL, block_count INTEGER, state TEXT DEFAULT 'pending'`)
 }
 
 func createTable(db *sql.DB, name string, fields string) {
