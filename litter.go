@@ -35,6 +35,7 @@ func main() {
 	app.Name = "litter"
 	app.Usage = "Spreading litter across the dark web"
 
+	//TODO: Add start and stop commands
 	app.Commands = []cli.Command{
 		{
 			Name:      "blocknotify",
@@ -42,17 +43,27 @@ func main() {
 			Usage:     "notify litter of new block",
 			Action: func(c *cli.Context) {
 				blockCount := c.Args().First()
+				onionHostname, err := readOnionHostname()
+				if err != nil {
+					log.Print("Unable to read onion hostname.")
+				} else {
+					conf.Set("onionHostname", onionHostname)
+				}
 				nmc.Blocknotify(blockCount)
 			},
 		},
 		{
-			Name:      "daemon",
+			Name:      "start",
 			ShortName: "d",
 			Usage:     "start the daemon process",
 			Action: func(c *cli.Context) {
 				startTor()
-				onionHostname, _ := readOnionHostname()
-				log.Print(onionHostname);
+				onionHostname, err := readOnionHostname()
+				if err != nil {
+					log.Fatal("Unable to read onion hostname. Bailing.")
+				} else {
+					conf.Set("onionHostname", onionHostname)
+				}
 
 				// Register and update namecoin address
 

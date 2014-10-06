@@ -1,14 +1,15 @@
 package nmc
 import ( 
+	"encoding/json"
+	"errors"
 	"fmt"
-	"net/url"
 	"github.com/awt/litter/config"
 	"github.com/awt/litter/store"
-	"encoding/json"
+	"log"
+	"net/url"
+	"os/exec"
 	"strconv"
 	"strings"
-	"os/exec"
-	"log"
 )
 
 var Config *config.Config
@@ -39,14 +40,21 @@ func Blocknotify(blockCountString string) {
 	for _, name := range names {
 		// check if blockcount is + 12
 
-		if name.BlockCount + 12 >= blockCount {
+		if name.BlockCount + 12 <= blockCount {
 			fmt.Printf("%s mature\n", name.Name)	
+
+			// send name_firstupdate if true
+
+			err = NameFirstUpdate(name)	
+			if err != nil {
+				log.Fatal(err)	
+			}
+
 		} else {
 			fmt.Printf("%s not ready yet\n", name.Name)	
 		}
 	}
 
-			// send name_firstupdate if true
 
 }
 
@@ -74,7 +82,7 @@ func FetchLeets() {
 }
 
 func IsRegistered(name string) (bool){
-	result := namecoind("name_history", fmt.Sprintf("id/%s", name))
+	result, _ := namecoind("name_history", fmt.Sprintf("id/%s", name))
 	if (len(result) >= 1) {
 		return true
 	} else {
@@ -102,6 +110,25 @@ func LookupHost(name string) (string) {
 	return namecoinIdentity.Litter
 }
 
+func NameFirstUpdate(name store.Name) (err error) {
+	// if onionHostname is not set there's no point
+
+	if Config.Get("onionHostname") == "" {
+		return errors.New("Can't perform name_firstupdate since onionHostname is not set.")
+	}
+
+	result, err := namecoind("name_firstupdate",
+	fmt.Sprintf("id/%s", name.Name),
+	name.ShortHash,
+	fmt.Sprintf("'{\"litter\":\"%s\"}'",
+	Config.Get("onionHostname")))	
+	if err != nil {
+		fmt.Printf("Failed to finalize registration of %s due to the following error: %s\n", name.Name, result)	
+	}
+	
+	return err
+}
+
 // name_new - store code in sqlite with name
 func ReserveName(name string) {
 	var result []interface{}
@@ -112,8 +139,9 @@ func ReserveName(name string) {
 		json.Unmarshal(resultText, result)
 		blockCount = 63443
 	} else {
-		result = namecoind("name_new", fmt.Sprintf("id/%s", name))	
-		bcResult := namecoind("getblockcount")[0].(string)
+		result, _ = namecoind("name_new", fmt.Sprintf("id/%s", name))	
+		array, _ := namecoind("getblockcount")
+		bcResult := array[0].(string)
 		var err error
 		blockCount, err = strconv.ParseInt(strings.TrimSpace(bcResult), 10, 64)
 		if(nil != err) {
@@ -139,16 +167,25 @@ func fetch(u string) (body []byte) {
 	return body
 }
 
-func namecoind(args ...string) (result []interface{}) {
-	out, _ := exec.Command("bin/namecoind", args...).Output()
-	if args[0] == "getblockcount" {
+func namecoind(args ...string) (result []interface{}, err error) {
+	fmt.Println(strings.Join(args, " "))
+	out, err := exec.Command("bin/namecoind", args...).CombinedOutput()
+
+	if err != nil {
+		fmt.Printf("Failure: %s\n", out)
+		result = make([]interface{}, 1)
+		var temp interface{}
+		json.Unmarshal(out, &temp)
+		result[0] = temp
+	} else if args[0] == "getblockcount" {
 		str := string(out)
 		result = make([]interface{}, 1)
 		result[0] = interface{}(str)
+		fmt.Printf("Success: %s\n", str)
 	} else {
-		fmt.Printf("command output: %s\n", out)
+		fmt.Printf("Success: %s\n", out)
 		json.Unmarshal(out, &result)
 	}
-	return result
+	return result, err
 }
 

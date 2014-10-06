@@ -21,6 +21,8 @@ func (c *Config) Get(key string) (value string) {
 }
 
 func (c *Config) Set(key string, value string) {
-	c.values[c.Name] = envMap{}
+	if c.values[c.Name] == nil {
+		c.values[c.Name] = envMap{}
+	}
 	c.values[c.Name][key] = value
 }
