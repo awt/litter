@@ -4,6 +4,26 @@ litter
 Litter is not about anonymity or privacy.  It is about allodial rights
 to your identity.
 
+	> litter help
+	NAME:
+   		litter - Spreading litter across the dark web
+
+	USAGE:
+   		litter [global options] command [command options] [arguments...]
+
+	VERSION:
+   		0.0.0
+
+	COMMANDS:
+   		blocknotify, b       notify litter of new block
+   		start, d             start the daemon process
+   		register, d          register <name>
+   		help, h              Shows a list of commands or help for one command
+   
+	GLOBAL OPTIONS:
+   		--help, -h           show help
+   		--version, -v        print the version
+
 # TODO
 	* implement name registration flow
 		- litter register <name>
