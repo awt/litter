@@ -82,8 +82,8 @@ func FetchLeets() {
 }
 
 func IsRegistered(name string) (bool){
-	result, _ := namecoind("name_history", fmt.Sprintf("id/%s", name))
-	if (len(result) >= 1) {
+	result, err := namecoind("name_history", fmt.Sprintf("id/%s", name))
+	if ((len(result) >= 1) && (err == nil)) {
 		return true
 	} else {
 		return false	
