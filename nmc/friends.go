@@ -41,7 +41,6 @@ func Blocknotify(blockCountString string) {
 		// check if blockcount is + 12
 
 		if name.BlockCount + 12 <= blockCount {
-			fmt.Printf("%s mature\n", name.Name)	
 
 			// send name_firstupdate if true
 
@@ -50,12 +49,11 @@ func Blocknotify(blockCountString string) {
 				log.Fatal(err)	
 			}
 
-		} else {
-			fmt.Printf("%s not ready yet\n", name.Name)	
+			// mark state as registered in db
+
+			store.MarkRegistered(name.Name)
 		}
 	}
-
-
 }
 
 func FetchLeets() {

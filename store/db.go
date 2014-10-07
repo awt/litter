@@ -96,6 +96,15 @@ func Leets() (leets []interface{}, err error) {
 	return leets, err
 }
 
+func MarkRegistered(name string) {
+	withDB(func(db *sql.DB, args ...interface{}) {
+		_, err := db.Exec("update names set state='registered' where name=?", name)
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
+}
+
 func PendingNames() (names []Name, err error) {
 
 	withDB(func(db *sql.DB, args ...interface{}) {
