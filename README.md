@@ -1,7 +1,8 @@
 litter
 =======
 
-Pseudonymous, secure broadcasting based on Tor and Namecoin
+Pseudonymous, peer to peer, encrypted, signed text message broadcasting.
+Think of it as a distributed Twitter where no one can ban your handle.
 
 # TODO
 	* implement name registration flow
