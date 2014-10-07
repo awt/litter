@@ -1,8 +1,8 @@
 litter
 =======
 
-Pseudonymous, peer to peer, encrypted, signed text message broadcasting.
-Think of it as a distributed Twitter where no one can ban your handle.
+Litter is not about anonymity or privacy.  It is about allodial rights
+to your identity.
 
 # TODO
 	* implement name registration flow

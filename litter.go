@@ -57,7 +57,20 @@ func main() {
 			ShortName: "d",
 			Usage:     "start the daemon process",
 			Action: func(c *cli.Context) {
-				startTor()
+				torCmd := startTor()
+				startNamecoind()
+
+				channel := make(chan os.Signal, 1)
+				signal.Notify(channel, os.Interrupt)
+				go func(){
+					for sig := range channel {
+						log.Printf("Got %v, shutting down.", sig)
+						torCmd.Process.Kill()
+						exec.Command("bin/namecoind", "stop").Start()
+						os.Exit(1)
+					}
+				}()
+
 				onionHostname, err := readOnionHostname()
 				if err != nil {
 					log.Fatal("Unable to read onion hostname. Bailing.")
@@ -103,32 +116,33 @@ func main() {
 
 }
 
-func initializeDatabase() {
-
-}
-
 // Start tor hidden service
 
-func startTor() {
-	torCmd := exec.Command("bin/tor", "-f", "./torrc")
+func startTor() (torCmd *exec.Cmd){
+	torCmd = exec.Command("bin/tor", "-f", "./torrc")
 	torCmd.Stdout = os.Stdout
     torCmd.Stderr = os.Stderr
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func(){
-		for sig := range c {
-			log.Printf("Got %v, shutting down.", sig)
-			torCmd.Process.Kill()
-			os.Exit(1)
-		}
-	}()
 
 	err := torCmd.Start()
 
 	if err != nil {
 		log.Fatal(err)
 	}
+	return torCmd
+}
+
+func startNamecoind() (namecoindCmd *exec.Cmd) {
+	namecoindCmd = exec.Command("bin/namecoind", "-testnet", "-datadir=namecoin/", "-dbcache=400", "-printtoconsole", "-walletpath=./testnet-wallet.dat")
+	namecoindCmd.Stdout = os.Stdout
+    namecoindCmd.Stderr = os.Stderr
+
+	err := namecoindCmd.Start()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return namecoindCmd
 }
 
 func startHttpServers() {
