@@ -18,6 +18,12 @@ type NamecoinIdentity struct {
 	Litter string
 }
 
+type Status struct {
+	Address string
+	Balance string
+	Names []string
+}
+
 func Blocknotify(blockCountString string) {
 
 	var err error
@@ -79,6 +85,38 @@ func FetchLeets() {
 
 }
 
+func GetStatus() (status Status){
+
+	// list nmc address
+
+	result, _ := namecoind("getaccountaddress", "litter")
+	status.Address = result[0].(string)
+
+	// balance
+	
+	result, _ = namecoind("getbalance")
+	status.Balance = result[0].(string)
+
+	// names with statuses
+
+	// get names in nmc
+	names, _ := namecoind("name_list")
+
+	for _, name := range names {
+		formatted := fmt.Sprintf("%s: registered", name.(map[string]interface{})["name"])	
+		status.Names = append(status.Names, formatted)
+	}
+	// get pending names + calculate remaining blocks
+
+	pendingNames, _ := store.PendingNames()
+
+	for _, name := range pendingNames {
+		formatted := fmt.Sprintf("%s: pending", name.Name)	
+		status.Names = append(status.Names, formatted)
+	}
+
+	return status
+}
 func IsRegistered(name string) (bool){
 	result, err := namecoind("name_history", fmt.Sprintf("id/%s", name))
 	if ((len(result) >= 1) && (err == nil)) {
@@ -166,7 +204,6 @@ func fetch(u string) (body []byte) {
 }
 
 func namecoind(args ...string) (result []interface{}, err error) {
-	fmt.Println(strings.Join(args, " "))
 	out, err := exec.Command("bin/namecoind", args...).CombinedOutput()
 
 	if err != nil {
@@ -175,13 +212,11 @@ func namecoind(args ...string) (result []interface{}, err error) {
 		var temp interface{}
 		json.Unmarshal(out, &temp)
 		result[0] = temp
-	} else if args[0] == "getblockcount" {
+	} else if (args[0] == "getblockcount") || (args[0] == "getaccountaddress") || (args[0] == "getbalance") {
 		str := string(out)
 		result = make([]interface{}, 1)
 		result[0] = interface{}(str)
-		fmt.Printf("Success: %s\n", str)
 	} else {
-		fmt.Printf("Success: %s\n", out)
 		json.Unmarshal(out, &result)
 	}
 	return result, err

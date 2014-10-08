@@ -53,6 +53,23 @@ func main() {
 			},
 		},
 		{
+			Name:      "register",
+			ShortName: "d",
+			Usage:     "register <name>",
+			Action: func(c *cli.Context) {
+				name := c.Args().First()
+
+				// check if name is taken
+				if !nmc.IsRegistered(name) {
+					log.Println(name)
+
+					nmc.ReserveName(name)
+				} else {
+					fmt.Printf("%s is already registered in the Namecoin network.\n", name)	
+				}
+			},
+		},
+		{
 			Name:      "start",
 			ShortName: "d",
 			Usage:     "start the daemon process",
@@ -95,19 +112,16 @@ func main() {
 			},
 		},
 		{
-			Name:      "register",
+			Name:      "status",
 			ShortName: "d",
-			Usage:     "register <name>",
+			Usage:     "status",
 			Action: func(c *cli.Context) {
-				name := c.Args().First()
 
-				// check if name is taken
-				if !nmc.IsRegistered(name) {
-					log.Println(name)
-
-					nmc.ReserveName(name)
-				} else {
-					fmt.Printf("%s is already registered in the Namecoin network.\n", name)	
+				status := nmc.GetStatus()
+				fmt.Printf("Namecoin address: %s\n", status.Address)
+				fmt.Printf("Namecoin balance: %s\n", status.Balance)
+				for _, name := range status.Names {
+					fmt.Println(name)
 				}
 			},
 		},

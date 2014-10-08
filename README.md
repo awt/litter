@@ -26,8 +26,7 @@ to your identity.
 
 # TODO
 	* implement name registration flow
-		- litter register <name>
-			- namecoind calls litter on new blocks
+		- namecoind calls litter on new blocks
 		- init namecoind folder automatically echo -e "..."
 		- litter status - name registration status
 			- list nmc address
@@ -36,7 +35,7 @@ to your identity.
 			
 		- gpg sign sent messages
 		- check gpg sig on received messages
-
+		- SOCKS5 connection to tor: http://blog.matee.net/post/tor-proxy-with-go
 		- persistent connections
 # Notes
 
