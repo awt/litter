@@ -27,14 +27,17 @@ to your identity.
 # TODO
 	* implement name registration flow
 		- litter register <name>
-			- check if name is taken
-			- store name in sqlite
-			- name_new - store code in sqlite with name
 			- namecoind calls litter on new blocks
-			- after 12 blocks send name_firstupdate: bin/namecoind name_firstupdate id/augustus d2eb8a142ed154d500 $(cat test/fixtures/record.json)
-			- namecoind calls litter on next block - mark name as registered if it's in the blockchain
+		- init namecoind folder automatically echo -e "..."
 		- litter status - name registration status
+			- list nmc address
+			- balance
+			- names with statuses
 			
+		- gpg sign sent messages
+		- check gpg sig on received messages
+
+		- persistent connections
 # Notes
 
 Github releases: https://github.com/blog/1547-release-your-software
