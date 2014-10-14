@@ -53,6 +53,15 @@ func main() {
 			},
 		},
 		{
+			Name:      "leet",
+			ShortName: "l",
+			Usage:     "leet <message>",
+			Action: func(c *cli.Context) {
+				message := c.Args().First()
+				store.CreateLeet(message)
+			},
+		},
+		{
 			Name:      "register",
 			ShortName: "d",
 			Usage:     "register <name>",

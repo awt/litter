@@ -28,16 +28,15 @@ to your identity.
 	* implement name registration flow
 		- namecoind calls litter on new blocks
 		- init namecoind folder automatically echo -e "..."
-		- litter status - name registration status
-			- list nmc address
-			- balance
-			- names with statuses
-			
 		- gpg sign sent messages
 		- check gpg sig on received messages
 		- SOCKS5 connection to tor: http://blog.matee.net/post/tor-proxy-with-go
 		- persistent connections
 # Notes
+
+https://github.com/prettymuchbryce/hellobitcoin
+
+https://sourcegraph.com/blog/building-a-testable-webapp
 
 Github releases: https://github.com/blog/1547-release-your-software
 
